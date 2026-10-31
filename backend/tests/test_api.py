@@ -42,7 +42,7 @@ def restore_projects_file():
 def test_root_and_health():
     assert client.get("/api/health").json() == {"status": "ok"}
     body = client.get("/").json()
-    assert body["message"].startswith("Hack Teh Tarik")
+    assert body["message"] == "ASEAN Opportunity Gateway API"
     assert "/docs" in body["endpoints"] or "docs" in body
 
 

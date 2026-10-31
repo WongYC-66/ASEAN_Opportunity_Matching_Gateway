@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ASEAN Opportunity Finder — Demo Prototype</title>
+  <title>ASEAN Opportunity Gateway — Demo Prototype</title>
   <meta
     name="description"
-    content="A beginner-friendly prototype that matches a startup profile to clearly labelled demo opportunities across ASEAN."
+    content="A rule-based prototype matching startup owners with support opportunities and investors with illustrative ASEAN startup profiles."
   />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -15,202 +15,455 @@
 
   <header class="site-header">
     <div class="wrap">
-      <p class="eyebrow">ASEAN Opportunity Finder · Integrated Prototype</p>
-      <h1>ASEAN Opportunity Finder</h1>
-      <p class="lede">
-        Tell us about your startup and we will rank demo opportunities from the local
-        backend, with a plain-language reason for each match and what you should verify
-        before applying.
+      <p class="eyebrow">ASEAN Opportunity Gateway · Integrated Prototype</p>
+      <h1>ASEAN Opportunity Gateway</h1>
+      <p class="lede">Discover opportunities. Connect capital. Build across ASEAN.</p>
+      <p class="sublede">
+        Helping startups discover relevant opportunities and helping investors discover
+        startups aligned with their investment interests.
       </p>
 
       <ol class="steps" aria-label="How this prototype works">
-        <li><span class="step-num" aria-hidden="true">1</span> Enter your startup profile</li>
-        <li><span class="step-num" aria-hidden="true">2</span> Get rule-based matches with reasons</li>
-        <li><span class="step-num" aria-hidden="true">3</span> Verify before applying</li>
+        <li><span class="step-num" aria-hidden="true">1</span> Choose your role</li>
+        <li><span class="step-num" aria-hidden="true">2</span> Build your profile</li>
+        <li><span class="step-num" aria-hidden="true">3</span> Review rule-based matches</li>
       </ol>
 
       <p class="chip-row">
         <span class="chip">No sign-up</span>
         <span class="chip">Rule-based, not AI</span>
-        <span class="chip">Local backend</span>
+        <span class="chip">Local JSON backend</span>
       </p>
 
       <!-- Demo-data warning. Keep this visible; it is the honest core of the prototype. -->
       <p class="demo-flag" role="note">
-        <strong>Demo data only.</strong> All opportunity records served by the backend are
-        fictional examples written for the hackathon. Nothing here is a real funding
-        programme, and nothing is confirmed to be open, available, or accepting applications.
+        <strong>Demo data only.</strong> Every opportunity and startup profile served by the
+        backend is a fictional example written for the hackathon. Nothing here is a real
+        programme, company, investor, or investment opportunity, and no contact or
+        introduction is created.
       </p>
     </div>
   </header>
 
-  <main class="wrap layout">
-    <!-- ================= LEFT: PROFILE FORM ================= -->
-    <section class="panel" aria-labelledby="profile-heading">
-      <h2 id="profile-heading">1. Your startup</h2>
-      <p class="hint">All fields are optional, but more detail gives a better match.</p>
-
-      <form id="profile-form" novalidate autocomplete="off">
-        <div class="field">
-          <label for="country">Country</label>
-          <select id="country" name="country">
-            <option value="">Select a country…</option>
-            <option>Brunei</option>
-            <option>Cambodia</option>
-            <option>Indonesia</option>
-            <option>Laos</option>
-            <option>Malaysia</option>
-            <option>Myanmar</option>
-            <option>Philippines</option>
-            <option>Singapore</option>
-            <option>Thailand</option>
-            <option>Vietnam</option>
-          </select>
+  <main>
+    <!-- ================= ROLE SELECTION ================= -->
+    <section class="role-section" aria-labelledby="role-heading">
+      <div class="wrap role-picker">
+        <div class="role-picker-head">
+          <h2 id="role-heading">Who are you?</h2>
+          <p class="hint">
+            Choose one role to start. The two forms keep separate entries, so switching
+            roles never carries incompatible details across. No account is needed.
+          </p>
         </div>
 
-        <div class="field">
-          <label for="industry">Industry</label>
-          <select id="industry" name="industry">
-            <option value="">Select an industry…</option>
-            <option>AgriFood</option>
-            <option>Fintech</option>
-            <option>HealthTech</option>
-            <option>EdTech</option>
-            <option>Climate / GreenTech</option>
-            <option>Logistics</option>
-            <option>Tourism</option>
-            <option>SaaS / Digital</option>
-            <option>Manufacturing</option>
-            <option>Creative industries</option>
-            <option>Other</option>
-          </select>
-        </div>
+        <fieldset class="role-fieldset">
+          <legend class="sr-only">Choose your role</legend>
+          <div class="role-grid">
+            <label class="role-card">
+              <input class="role-input" type="radio" name="role" value="startup" />
+              <span class="role-body">
+                <span class="role-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 21V9" />
+                    <path d="M12 9C12 5 9 3 5 3c0 4 3 6 7 6Z" />
+                    <path d="M12 13c0-3 2.5-5 6-5 0 3-2.5 5-6 5Z" />
+                  </svg>
+                </span>
+                <span class="role-text">
+                  <span class="role-title">Startup Owner</span>
+                  <span class="role-desc">
+                    Find funding programmes, startup support, and potential investors.
+                  </span>
+                </span>
+                <span class="role-radio" aria-hidden="true"></span>
+                <span class="role-check" aria-hidden="true">Selected</span>
+              </span>
+            </label>
 
-        <div class="field">
-          <label for="stage">Company stage</label>
-          <select id="stage" name="stage">
-            <option value="">Select a stage…</option>
-            <option>Idea</option>
-            <option>Pre-seed</option>
-            <option>Seed</option>
-            <option>Growth</option>
-          </select>
-        </div>
-
-        <fieldset class="field goals">
-          <legend>Goals (choose any)</legend>
-          <label class="check"><input type="checkbox" name="goals" value="Funding" /> Funding</label>
-          <label class="check"><input type="checkbox" name="goals" value="Mentorship" /> Mentorship</label>
-          <label class="check"><input type="checkbox" name="goals" value="Market access" /> Market access</label>
-          <label class="check"><input type="checkbox" name="goals" value="Partnership" /> Partnership</label>
-          <label class="check"><input type="checkbox" name="goals" value="Incubation &amp; workspace" /> Incubation &amp; workspace</label>
-          <label class="check"><input type="checkbox" name="goals" value="Talent &amp; hiring" /> Talent &amp; hiring</label>
-          <label class="check"><input type="checkbox" name="goals" value="Regulatory guidance" /> Regulatory guidance</label>
+            <label class="role-card">
+              <input class="role-input" type="radio" name="role" value="investor" />
+              <span class="role-body">
+                <span class="role-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19h16" />
+                    <path d="M6 16l4-4 3 3 5-7" />
+                    <path d="M15 8h3v3" />
+                  </svg>
+                </span>
+                <span class="role-text">
+                  <span class="role-title">Investor</span>
+                  <span class="role-desc">
+                    Discover startups aligned with your preferred markets, industries,
+                    stages, and investment strategy.
+                  </span>
+                </span>
+                <span class="role-radio" aria-hidden="true"></span>
+                <span class="role-check" aria-hidden="true">Selected</span>
+              </span>
+            </label>
+          </div>
         </fieldset>
 
-        <p id="form-message" class="form-message" role="alert" hidden></p>
-
-        <div class="actions">
-          <button type="submit" class="btn btn-primary">Find opportunities</button>
-          <button type="reset" class="btn btn-ghost">Reset</button>
-        </div>
-      </form>
-
-      <p class="hint privacy-note">
-        Your profile is sent to the local backend only to calculate match scores. It is not
-        saved, and there is no account.
-      </p>
+        <p id="role-status" class="role-status" role="status">
+          No role selected yet. The matching forms and results stay hidden until you choose
+          Startup Owner or Investor.
+        </p>
+      </div>
     </section>
 
-    <!-- ================= RIGHT: RESULTS ================= -->
-    <section class="results-panel" aria-labelledby="results-heading">
-      <div class="results-head">
-        <h2 id="results-heading">2. Opportunities</h2>
-        <p class="hint">Filter the records below. Results are examples, not recommendations.</p>
-        <p id="data-counts" class="data-counts"></p>
-        <p id="source-status" class="source-status" role="status">Connecting to the local backend…</p>
-      </div>
-
-      <div class="verify-explainer" role="note">
-        <p>
-          <strong>How matching works:</strong> the local Python backend applies a fixed set of
-          rules to country, industry, stage, and goals. It is <strong>not AI</strong> and it
-          does not decide whether you are eligible - always check the official programme rules.
+    <!-- ================= ROLE WORKSPACE ================= -->
+    <div id="workspace" class="wrap layout" hidden>
+      <!-- ----- STARTUP OWNER FORM ----- -->
+      <section id="startup-panel" class="panel" aria-labelledby="startup-form-heading" hidden>
+        <h2 id="startup-form-heading" tabindex="-1">1. Your startup</h2>
+        <p class="hint">
+          All fields are optional, but a country, industry, stage, or goal gives the rules
+          something to explain.
         </p>
-        <p>
-          <strong>Verified</strong> means the recorded details were checked against the
-          official source on the stated date. It does <strong>not</strong> mean applications
-          are open today, and it is not a guarantee of current availability.
+
+        <form id="startup-form" novalidate autocomplete="off">
+          <div class="field">
+            <label for="startup-country">Country of operation</label>
+            <select id="startup-country" name="country">
+              <option value="">Select a country…</option>
+              <option>Malaysia</option>
+              <option>Singapore</option>
+              <option>Indonesia</option>
+              <option>Thailand</option>
+              <option>Vietnam</option>
+              <option>Philippines</option>
+              <option>Brunei</option>
+              <option>Cambodia</option>
+              <option>Laos</option>
+              <option>Myanmar</option>
+              <option>Timor-Leste</option>
+              <option>ASEAN-wide</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="startup-industry">Industry</label>
+            <select id="startup-industry" name="industry">
+              <option value="">Select an industry…</option>
+              <option>Fintech</option>
+              <option>Artificial Intelligence</option>
+              <option>Software / SaaS</option>
+              <option>Climate / Clean Energy</option>
+              <option>Healthcare</option>
+              <option>Education</option>
+              <option>Agriculture / Food</option>
+              <option>E-commerce / Retail</option>
+              <option>Logistics / Mobility</option>
+              <option>Manufacturing</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="startup-stage">Startup stage</label>
+            <select id="startup-stage" name="stage">
+              <option value="">Select a stage…</option>
+              <option>Idea</option>
+              <option>Pre-seed</option>
+              <option>Seed</option>
+              <option>Series A</option>
+              <option>Series B+</option>
+              <option>Growth / Established business</option>
+            </select>
+          </div>
+
+          <fieldset class="field choices">
+            <legend>Goals (choose any)</legend>
+            <div class="choice-grid">
+              <label class="check"><input type="checkbox" name="startup-goals" value="Funding" /> Funding</label>
+              <label class="check"><input type="checkbox" name="startup-goals" value="Mentorship" /> Mentorship</label>
+              <label class="check"><input type="checkbox" name="startup-goals" value="Market access" /> Market access</label>
+              <label class="check"><input type="checkbox" name="startup-goals" value="Partnership" /> Partnership</label>
+              <label class="check"><input type="checkbox" name="startup-goals" value="Incubation / Workspace" /> Incubation / Workspace</label>
+              <label class="check"><input type="checkbox" name="startup-goals" value="Talent / Hiring" /> Talent / Hiring</label>
+              <label class="check"><input type="checkbox" name="startup-goals" value="Regulatory guidance" /> Regulatory guidance</label>
+            </div>
+          </fieldset>
+
+          <fieldset class="field choices">
+            <legend>Funding requirement (optional)</legend>
+            <div class="field-row">
+              <div class="field grow">
+                <label class="sub-label" for="startup-funding">Amount sought</label>
+                <input
+                  id="startup-funding"
+                  name="fundingAmount"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  inputmode="decimal"
+                  placeholder="e.g. 250000"
+                />
+              </div>
+              <div class="field">
+                <label class="sub-label" for="startup-currency">Currency</label>
+                <select id="startup-currency" name="fundingCurrency">
+                  <option value="">Select…</option>
+                  <option>USD</option>
+                  <option>SGD</option>
+                  <option>MYR</option>
+                </select>
+              </div>
+            </div>
+            <p class="hint field-note">
+              Collected for your reference only. The demo opportunity records do not publish
+              funding ranges, so this amount is not scored.
+            </p>
+          </fieldset>
+
+          <div class="field">
+            <label for="startup-description">Short description (optional)</label>
+            <textarea
+              id="startup-description"
+              name="description"
+              rows="3"
+              maxlength="400"
+              placeholder="What does your startup do?"
+            ></textarea>
+            <p class="counter"><span id="startup-description-count">0</span>/400</p>
+          </div>
+
+          <p id="startup-form-message" class="form-message" role="alert" hidden></p>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">Find Opportunities</button>
+            <button type="reset" class="btn btn-ghost">Reset</button>
+          </div>
+        </form>
+
+        <p class="hint privacy-note">
+          Your profile is sent to the local backend only to calculate match scores. It is not
+          saved, and there is no account.
         </p>
-        <p>
-          <strong>Demo</strong> means the record is a fictional example. There is no real
-          programme behind it. Verification status is shown for transparency and is
-          <strong>not</strong> part of the match score.
+      </section>
+
+      <!-- ----- INVESTOR FORM ----- -->
+      <section id="investor-panel" class="panel" aria-labelledby="investor-form-heading" hidden>
+        <h2 id="investor-form-heading" tabindex="-1">1. Your investment thesis</h2>
+        <p class="hint">
+          Pick as much or as little as you like. Only criteria with enough information on
+          both sides are scored.
         </p>
-      </div>
 
-      <div id="data-check" class="data-check" role="status"></div>
+        <form id="investor-form" novalidate autocomplete="off">
+          <div class="field">
+            <label for="investor-type">Investor type</label>
+            <select id="investor-type" name="investorType">
+              <option value="">Select an investor type…</option>
+              <option>Angel Investor</option>
+              <option>Venture Capital Fund</option>
+              <option>Corporate Venture Capital</option>
+              <option>Family Office</option>
+              <option>Private Equity</option>
+              <option>Accelerator / Incubator</option>
+              <option>Strategic Corporate Investor</option>
+              <option>Other</option>
+            </select>
+          </div>
 
-      <div class="toolbar">
-        <div class="field">
-          <label for="type-filter">Type</label>
-          <select id="type-filter">
-            <option value="">All types</option>
-            <option>Funding</option>
-            <option>Support</option>
-            <option>Partnership</option>
-          </select>
+          <fieldset class="field choices">
+            <legend>Preferred geography (choose any)</legend>
+            <div class="choice-grid">
+              <label class="check"><input type="checkbox" name="investor-countries" value="Malaysia" /> Malaysia</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Singapore" /> Singapore</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Indonesia" /> Indonesia</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Thailand" /> Thailand</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Vietnam" /> Vietnam</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Philippines" /> Philippines</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Brunei" /> Brunei</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Cambodia" /> Cambodia</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Laos" /> Laos</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Myanmar" /> Myanmar</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="Timor-Leste" /> Timor-Leste</label>
+              <label class="check"><input type="checkbox" name="investor-countries" value="ASEAN-wide" /> ASEAN-wide</label>
+            </div>
+          </fieldset>
+
+          <fieldset class="field choices">
+            <legend>Preferred industries (choose any)</legend>
+            <div class="choice-grid">
+              <label class="check"><input type="checkbox" name="investor-industries" value="Fintech" /> Fintech</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="Artificial Intelligence" /> Artificial Intelligence</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="Software / SaaS" /> Software / SaaS</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="Climate / Clean Energy" /> Climate / Clean Energy</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="Healthcare" /> Healthcare</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="Education" /> Education</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="Agriculture / Food" /> Agriculture / Food</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="E-commerce / Retail" /> E-commerce / Retail</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="Logistics / Mobility" /> Logistics / Mobility</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="Manufacturing" /> Manufacturing</label>
+              <label class="check"><input type="checkbox" name="investor-industries" value="Other" /> Other</label>
+            </div>
+          </fieldset>
+
+          <fieldset class="field choices">
+            <legend>Preferred startup stages (choose any)</legend>
+            <div class="choice-grid">
+              <label class="check"><input type="checkbox" name="investor-stages" value="Idea" /> Idea</label>
+              <label class="check"><input type="checkbox" name="investor-stages" value="Pre-seed" /> Pre-seed</label>
+              <label class="check"><input type="checkbox" name="investor-stages" value="Seed" /> Seed</label>
+              <label class="check"><input type="checkbox" name="investor-stages" value="Series A" /> Series A</label>
+              <label class="check"><input type="checkbox" name="investor-stages" value="Series B+" /> Series B+</label>
+              <label class="check"><input type="checkbox" name="investor-stages" value="Growth / Established business" /> Growth / Established business</label>
+            </div>
+          </fieldset>
+
+          <fieldset class="field choices">
+            <legend>Investment ticket size (optional)</legend>
+            <div class="field-row">
+              <div class="field grow">
+                <label class="sub-label" for="investor-ticket-min">Minimum</label>
+                <input
+                  id="investor-ticket-min"
+                  name="ticketMin"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  inputmode="decimal"
+                  placeholder="e.g. 50000"
+                />
+              </div>
+              <div class="field grow">
+                <label class="sub-label" for="investor-ticket-max">Maximum</label>
+                <input
+                  id="investor-ticket-max"
+                  name="ticketMax"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  inputmode="decimal"
+                  placeholder="e.g. 500000"
+                />
+              </div>
+              <div class="field">
+                <label class="sub-label" for="investor-currency">Currency</label>
+                <select id="investor-currency" name="currency">
+                  <option>USD</option>
+                  <option>SGD</option>
+                  <option>MYR</option>
+                </select>
+              </div>
+            </div>
+            <p class="hint field-note">
+              No currency conversion is applied. A ticket is only compared when the startup's
+              funding requirement is recorded in the same currency.
+            </p>
+          </fieldset>
+
+          <fieldset class="field choices">
+            <legend>Investment strategy (choose any)</legend>
+            <div class="choice-grid">
+              <label class="check"><input type="checkbox" name="investor-strategies" value="Early-stage growth" /> Early-stage growth</label>
+              <label class="check"><input type="checkbox" name="investor-strategies" value="Revenue-generating businesses" /> Revenue-generating businesses</label>
+              <label class="check"><input type="checkbox" name="investor-strategies" value="Deep technology" /> Deep technology</label>
+              <label class="check"><input type="checkbox" name="investor-strategies" value="Impact / ESG" /> Impact / ESG</label>
+              <label class="check"><input type="checkbox" name="investor-strategies" value="Strategic partnerships" /> Strategic partnerships</label>
+              <label class="check"><input type="checkbox" name="investor-strategies" value="Market expansion" /> Market expansion</label>
+              <label class="check"><input type="checkbox" name="investor-strategies" value="Other" /> Other</label>
+            </div>
+          </fieldset>
+
+          <fieldset class="field choices">
+            <legend>Investor goals (choose any)</legend>
+            <div class="choice-grid">
+              <label class="check"><input type="checkbox" name="investor-goals" value="Discover startups" /> Discover startups</label>
+              <label class="check"><input type="checkbox" name="investor-goals" value="Find co-investors" /> Find co-investors</label>
+              <label class="check"><input type="checkbox" name="investor-goals" value="Find co-investment opportunities" /> Find co-investment opportunities</label>
+              <label class="check"><input type="checkbox" name="investor-goals" value="Explore new ASEAN markets" /> Explore new ASEAN markets</label>
+              <label class="check"><input type="checkbox" name="investor-goals" value="Find strategic investment opportunities" /> Find strategic investment opportunities</label>
+              <label class="check"><input type="checkbox" name="investor-goals" value="Discover accelerator or ecosystem partnerships" /> Discover accelerator or ecosystem partnerships</label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="investor-description">Investment thesis or interests (optional)</label>
+            <textarea
+              id="investor-description"
+              name="description"
+              rows="3"
+              maxlength="400"
+              placeholder="e.g. early-stage fintech and applied AI across Malaysia and Singapore"
+            ></textarea>
+            <p class="counter"><span id="investor-description-count">0</span>/400</p>
+          </div>
+
+          <p id="investor-form-message" class="form-message" role="alert" hidden></p>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">Find Matching Startups</button>
+            <button type="reset" class="btn btn-ghost">Reset</button>
+          </div>
+        </form>
+
+        <p class="hint privacy-note">
+          Your profile is sent to the local backend only to calculate match scores. It is not
+          saved. This prototype has no contact, messaging, or introduction feature.
+        </p>
+      </section>
+
+      <!-- ----- RESULTS ----- -->
+      <section class="results-panel" aria-labelledby="results-heading">
+        <div class="results-head">
+          <h2 id="results-heading" tabindex="-1">Results</h2>
+          <p id="results-summary" class="results-summary" aria-live="polite"></p>
+          <p id="data-counts" class="data-counts"></p>
+          <p id="source-status" class="source-status" role="status">Not connected yet.</p>
         </div>
 
-        <div class="field">
-          <label for="status-filter">Record status</label>
-          <select id="status-filter">
-            <option value="">All records</option>
-            <option value="verified">Verified only</option>
-            <option value="demo">Demo only</option>
-          </select>
+        <div id="results-notice" class="results-notice" role="note" hidden></div>
+
+        <details class="explainer">
+          <summary>How matching works</summary>
+          <div id="matching-explainer"></div>
+        </details>
+
+        <div id="data-check" class="data-check" role="status">Data check runs when the page loads.</div>
+
+        <!-- Only the controls that solve a distinct problem: ordering and an
+             optional verified-only view. Type, status, and search are gone. -->
+        <div class="toolbar">
+          <div class="field">
+            <label for="sort">Sort</label>
+            <select id="sort">
+              <option value="match">Best Match</option>
+              <option value="name">Alphabetical</option>
+            </select>
+          </div>
+          <div class="field checkbox-field">
+            <input type="checkbox" id="verified-only" />
+            <label for="verified-only">
+              Verified records only
+              <span class="hint-inline">Hides demo records. None are verified in this prototype.</span>
+            </label>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="search">Search</label>
-          <input
-            id="search"
-            type="search"
-            placeholder="e.g. seed, fintech, mentoring…"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="field">
-          <label for="sort">Sort</label>
-          <select id="sort">
-            <option value="match">Best match (uses your profile)</option>
-            <option value="title">Title A–Z</option>
-          </select>
-        </div>
-      </div>
-
-      <p id="results-summary" class="results-summary" aria-live="polite"></p>
-      <div id="results" class="results" aria-live="polite"></div>
-    </section>
+        <div id="results" class="results" aria-live="polite"></div>
+      </section>
+    </div>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
       <p>
         <strong>Prototype disclaimer.</strong> Built for a hackathon demo. All opportunities
-        are fictional sample data served by the local backend. Always verify eligibility,
-        deadlines, fees, and data handling with an official source before applying to
-        anything.
+        and startup profiles are fictional sample data served by the local backend. Nothing
+        here is a real programme, company, investor, or offer, and no introduction has been
+        arranged. Always verify eligibility, deadlines, fees, and data handling with an
+        official source.
       </p>
       <p class="footer-meta">
-        ASEAN Opportunity Finder · Hacktoberfest KL 2026 · MIT licensed (see LICENSE)
+        ASEAN Opportunity Gateway · Hacktoberfest KL 2026 · MIT licensed (see LICENSE)
       </p>
     </div>
   </footer>
 
-  <!-- data.js (the original offline snapshot) is kept for reference but is no longer
-       loaded: the backend JSON file is the single source of opportunity records. -->
   <script src="app.js"></script>
 </body>
 </html>

@@ -140,3 +140,89 @@ def test_run_matching_does_not_use_llm(monkeypatch):
     response = run_matching([record], OpportunityMatchRequest(country="Malaysia"))
     assert response.engine == "rules"
     assert response.matches[0].percent == 33
+
+
+def test_new_form_labels_match_older_record_labels():
+    record = Opportunity.model_validate(
+        {
+            "id": "health",
+            "name": "Health",
+            "provider": "Provider",
+            "category": "Partnership",
+            "countries": ["Malaysia"],
+            "targetStages": ["Pre-seed", "Seed"],
+            "targetIndustries": ["HealthTech"],
+            "goals": ["Incubation & workspace"],
+            "dataStatus": "demo",
+        }
+    )
+    profile = OpportunityMatchRequest(
+        country="Malaysia",
+        industry="Healthcare",
+        stage="Seed",
+        goals=["Incubation / Workspace"],
+    )
+    score, percent, _, reasons = score_opportunity(record, profile)
+    # country 3 + industry 2 + stage 2 + one goal 1 = 8/9.
+    assert score == 8
+    assert percent == 89
+    assert any("related industry" in reason for reason in reasons)
+
+
+def test_growth_label_matches_growth_record_alias():
+    record = Opportunity.model_validate(
+        {
+            "id": "growth",
+            "name": "Growth",
+            "provider": "Provider",
+            "category": "Support",
+            "countries": ["ASEAN-wide"],
+            "targetStages": ["Growth"],
+            "targetIndustries": ["Logistics"],
+            "goals": [],
+            "dataStatus": "demo",
+        }
+    )
+    profile = OpportunityMatchRequest(
+        country="Malaysia",
+        industry="Logistics / Mobility",
+        stage="Growth / Established business",
+    )
+    score, _, _, _ = score_opportunity(record, profile)
+    assert score == 6  # 2 ASEAN-wide + 2 related industry + 2 related stage
+
+
+def test_asean_wide_profile_treats_regional_records_as_full_match():
+    regional = Opportunity.model_validate(
+        {
+            "id": "regional",
+            "name": "Regional",
+            "provider": "Provider",
+            "category": "Funding",
+            "countries": ["ASEAN-wide"],
+            "dataStatus": "demo",
+        }
+    )
+    single = Opportunity.model_validate(
+        {
+            "id": "single",
+            "name": "Single",
+            "provider": "Provider",
+            "category": "Funding",
+            "countries": ["Malaysia"],
+            "dataStatus": "demo",
+        }
+    )
+    profile = OpportunityMatchRequest(country="ASEAN-wide")
+    assert score_opportunity(regional, profile)[0] == 3
+    assert score_opportunity(single, profile)[0] == 2
+
+
+def test_match_response_documents_criteria_used():
+    data = client.post("/api/opportunities/match", json=SAMPLE_PROFILE).json()
+    assert data["criteria"] == [
+        "Country coverage",
+        "Industry focus",
+        "Startup stage",
+        "Shared goals",
+    ]

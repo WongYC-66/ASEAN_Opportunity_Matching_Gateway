@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Optional
 from uuid import uuid4
 
-from .models import Opportunity, Project, ProjectCreate, Sponsor
+from .models import Opportunity, Project, ProjectCreate, Sponsor, Startup
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 _lock = threading.Lock()
@@ -29,6 +29,7 @@ def _write(name: str, rows: list) -> None:
 _sponsors: List[dict] = _read("sponsors.json")
 _projects: List[dict] = _read("projects.json")
 _opportunities: List[dict] = _read("opportunities.json")
+_startups: List[dict] = _read("startups.json")
 
 
 def list_sponsors() -> List[Sponsor]:
@@ -73,4 +74,15 @@ def get_opportunity(opportunity_id: str) -> Optional[Opportunity]:
     for row in _opportunities:
         if row.get("id") == opportunity_id:
             return Opportunity.model_validate(row)
+    return None
+
+
+def list_startups() -> List[Startup]:
+    return [Startup.model_validate(row) for row in _startups]
+
+
+def get_startup(startup_id: str) -> Optional[Startup]:
+    for row in _startups:
+        if row.get("id") == startup_id:
+            return Startup.model_validate(row)
     return None

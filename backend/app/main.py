@@ -4,18 +4,19 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import match, opportunities, projects, sponsors
+from .routers import match, opportunities, projects, sponsors, startups
 
 # Load backend/.env if present (LLM config lives there).
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 app = FastAPI(
-    title="Hack Teh Tarik API",
-    version="0.3.0",
+    title="ASEAN Opportunity Gateway API",
+    version="0.4.0",
     description=(
-        "Backend for the ASEAN Opportunity Finder plus the original sponsor "
-        "matcher. Opportunity matching is deterministic rule-based scoring; "
-        "the sponsor matcher optionally uses an LLM."
+        "Backend for the dual-sided ASEAN Opportunity Gateway (startup owners "
+        "and investors) plus the original sponsor matcher. Both opportunity and "
+        "startup matching are deterministic rule-based scoring; the legacy "
+        "sponsor matcher optionally uses an LLM."
     ),
 )
 
@@ -31,17 +32,21 @@ app.include_router(projects.router, prefix="/api")
 app.include_router(sponsors.router, prefix="/api")
 app.include_router(match.router, prefix="/api")
 app.include_router(opportunities.router, prefix="/api")
+app.include_router(startups.router, prefix="/api")
 
 
 @app.get("/", tags=["meta"])
 def root():
     return {
-        "message": "Hack Teh Tarik API",
+        "message": "ASEAN Opportunity Gateway API",
         "docs": "/docs",
         "endpoints": [
             "GET /api/opportunities",
             "GET /api/opportunities/{id}",
             "POST /api/opportunities/match",
+            "GET /api/startups",
+            "GET /api/startups/{id}",
+            "POST /api/startups/match",
             "GET /api/projects",
             "GET /api/projects/{id}",
             "POST /api/projects",
