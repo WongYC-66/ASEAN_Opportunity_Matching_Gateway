@@ -1,0 +1,5 @@
+# Used by contributors and CI for running the backend test suite.
+# Install alongside requirements.txt:
+#   pip install -r requirements.txt -r requirements-dev.txt
+
+pytest==9.0.2

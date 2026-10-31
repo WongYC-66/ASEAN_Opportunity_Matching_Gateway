@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from .. import llm, matching, store
 from ..models import MatchRequest, MatchResponse, Project, ProjectCreate
@@ -39,14 +39,18 @@ def match(request: MatchRequest):
 def match_project(
     project_id: str,
     request: MatchRequest | None = None,
-    top_k: int = 5,
-    user_context: str = "",
+    top_k: int | None = Query(default=None, ge=1, le=20),
+    user_context: str | None = Query(default=None, max_length=4000),
 ):
+    # Query params only override the body when explicitly provided, so a JSON
+    # body is never silently clobbered by their defaults.
     payload = request or MatchRequest()
     payload.project_id = project_id
     payload.project = None
-    payload.top_k = top_k
-    payload.user_context = user_context
+    if top_k is not None:
+        payload.top_k = top_k
+    if user_context is not None:
+        payload.user_context = user_context
     return match(payload)
 
 

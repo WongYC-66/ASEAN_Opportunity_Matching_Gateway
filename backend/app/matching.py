@@ -5,7 +5,7 @@ heuristic scorer. Both produce the same ranked shape for the UI.
 """
 
 import json
-from datetime import datetime, timezone
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from . import llm
@@ -28,8 +28,12 @@ def _norm(value: str) -> str:
 
 
 def _term_match(term: str, text: str) -> bool:
-    term = _norm(term)
-    return bool(term) and term in text
+    needle = _norm(term)
+    if not needle:
+        return False
+    # Whole-token match so "ml" does not hit "html" or "ai" hits "Team".
+    pattern = r"(?<![\w])" + re.escape(needle) + r"(?![\w])"
+    return re.search(pattern, text) is not None
 
 
 def _project_blob(project: Project, user_context: str) -> str:
@@ -101,8 +105,10 @@ def heuristic_score(
     hits, matched = _count_hits([term for term in track_terms if term], text)
     if track_terms:
         score += min(1.0, hits / max(2, len(track_terms) * 0.4)) * 15
-    if matched:
+    if matched and sponsor.track_name:
         reasons.append(f"Speaks to the '{sponsor.track_name}' track.")
+    elif matched:
+        reasons.append(f"Aligned with sponsor keywords: {', '.join(matched[:3])}.")
 
     # --- Team readiness (15) ---
     readiness = 0.0
@@ -263,7 +269,7 @@ def run_matching(
             raw = llm.chat_json(
                 SYSTEM_PROMPT,
                 _build_user_prompt(
-                    project, sponsors, request.user_context, request.top_k
+                    project, sponsors, request.user_context, top_k
                 ),
                 cfg,
             )
