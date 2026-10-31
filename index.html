@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ASEAN Opportunity Finder — Demo Prototype</title>
+  <meta
+    name="description"
+    content="A beginner-friendly prototype that matches a startup profile to clearly labelled demo opportunities across ASEAN."
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#results-heading">Skip to results</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <p class="eyebrow">Ecosystem Gateway · Prototype</p>
+      <h1>ASEAN Opportunity Finder</h1>
+      <p class="lede">
+        Tell us about your startup and we will show demo opportunities that might fit,
+        with a plain-language reason for each match and what you should verify first.
+      </p>
+
+      <ol class="steps" aria-label="How this prototype works">
+        <li><span class="step-num" aria-hidden="true">1</span> Enter your startup profile</li>
+        <li><span class="step-num" aria-hidden="true">2</span> Get rule-based matches with reasons</li>
+        <li><span class="step-num" aria-hidden="true">3</span> Verify before applying</li>
+      </ol>
+
+      <p class="chip-row">
+        <span class="chip">No sign-up</span>
+        <span class="chip">Rule-based, not AI</span>
+        <span class="chip">Works offline</span>
+      </p>
+
+      <!-- Demo-data warning. Keep this visible; it is the honest core of the prototype. -->
+      <p class="demo-flag" role="note">
+        <strong>Demo data only.</strong> Every opportunity in this prototype is a fictional
+        example written for the hackathon. Nothing here is a real funding programme, and
+        nothing is confirmed to be open, available, or accepting applications.
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <!-- ================= LEFT: PROFILE FORM ================= -->
+    <section class="panel" aria-labelledby="profile-heading">
+      <h2 id="profile-heading">1. Your startup</h2>
+      <p class="hint">All fields are optional, but more detail gives a better match.</p>
+
+      <form id="profile-form" novalidate autocomplete="off">
+        <div class="field">
+          <label for="country">Country</label>
+          <select id="country" name="country">
+            <option value="">Select a country…</option>
+            <option>Brunei</option>
+            <option>Cambodia</option>
+            <option>Indonesia</option>
+            <option>Laos</option>
+            <option>Malaysia</option>
+            <option>Myanmar</option>
+            <option>Philippines</option>
+            <option>Singapore</option>
+            <option>Thailand</option>
+            <option>Vietnam</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="industry">Industry</label>
+          <select id="industry" name="industry">
+            <option value="">Select an industry…</option>
+            <option>AgriFood</option>
+            <option>Fintech</option>
+            <option>HealthTech</option>
+            <option>EdTech</option>
+            <option>Climate / GreenTech</option>
+            <option>Logistics</option>
+            <option>Tourism</option>
+            <option>SaaS / Digital</option>
+            <option>Manufacturing</option>
+            <option>Creative industries</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="stage">Company stage</label>
+          <select id="stage" name="stage">
+            <option value="">Select a stage…</option>
+            <option>Idea</option>
+            <option>Pre-seed</option>
+            <option>Seed</option>
+            <option>Growth</option>
+          </select>
+        </div>
+
+        <fieldset class="field goals">
+          <legend>Goals (choose any)</legend>
+          <label class="check"><input type="checkbox" name="goals" value="Funding" /> Funding</label>
+          <label class="check"><input type="checkbox" name="goals" value="Mentorship" /> Mentorship</label>
+          <label class="check"><input type="checkbox" name="goals" value="Market access" /> Market access</label>
+          <label class="check"><input type="checkbox" name="goals" value="Partnership" /> Partnership</label>
+          <label class="check"><input type="checkbox" name="goals" value="Incubation &amp; workspace" /> Incubation &amp; workspace</label>
+          <label class="check"><input type="checkbox" name="goals" value="Talent &amp; hiring" /> Talent &amp; hiring</label>
+          <label class="check"><input type="checkbox" name="goals" value="Regulatory guidance" /> Regulatory guidance</label>
+        </fieldset>
+
+        <p id="form-message" class="form-message" role="alert" hidden></p>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">Find opportunities</button>
+          <button type="reset" class="btn btn-ghost">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ================= RIGHT: RESULTS ================= -->
+    <section class="results-panel" aria-labelledby="results-heading">
+      <div class="results-head">
+        <h2 id="results-heading">2. Opportunities</h2>
+        <p class="hint">Filter the records below. Results are examples, not recommendations.</p>
+        <p id="data-counts" class="data-counts"></p>
+      </div>
+
+      <div class="verify-explainer" role="note">
+        <p>
+          <strong>How matching works:</strong> a fixed set of rules scores country, industry,
+          stage, and goals. It is <strong>not AI</strong> and it does not decide whether you
+          are eligible - always check the official programme rules.
+        </p>
+        <p>
+          <strong>Verified</strong> means the recorded details were checked against the
+          official source on the stated date. It does <strong>not</strong> mean applications
+          are open today, and it is not a guarantee of current availability.
+        </p>
+        <p>
+          <strong>Demo</strong> means the record is a fictional example. There is no real
+          programme behind it. Verification status is shown for transparency and is
+          <strong>not</strong> part of the match score.
+        </p>
+      </div>
+
+      <div id="data-check" class="data-check" role="status"></div>
+
+      <div class="toolbar">
+        <div class="field">
+          <label for="type-filter">Type</label>
+          <select id="type-filter">
+            <option value="">All types</option>
+            <option>Funding</option>
+            <option>Support</option>
+            <option>Partnership</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="status-filter">Record status</label>
+          <select id="status-filter">
+            <option value="">All records</option>
+            <option value="verified">Verified only</option>
+            <option value="demo">Demo only</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="search">Search</label>
+          <input
+            id="search"
+            type="search"
+            placeholder="e.g. seed, fintech, mentoring…"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="field">
+          <label for="sort">Sort</label>
+          <select id="sort">
+            <option value="match">Best match (uses your profile)</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <p id="results-summary" class="results-summary" aria-live="polite"></p>
+      <div id="results" class="results" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>
+        <strong>Prototype disclaimer.</strong> Built for a hackathon demo. All opportunities
+        are fictional sample data. Always verify eligibility, deadlines, fees, and data
+        handling with an official source before applying to anything.
+      </p>
+      <p class="footer-meta">
+        ASEAN Opportunity Finder · Hacktoberfest KL 2026 · MIT licensed (see LICENSE)
+      </p>
+    </div>
+  </footer>
+
+  <!-- Plain scripts (no modules) so the page also works when opened directly from disk. -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
