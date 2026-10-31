@@ -271,7 +271,22 @@ def run_matching(
     ranked.sort(
         key=lambda item: (-item.score, -_confidence(item), item.startup.name)
     )
-    matches = ranked[: profile.top_k]
+    # Filter out results below 50% or with no meaningful score/value
+    filtered = []
+    for item in ranked:
+        pct = item.percent
+        if pct is None:
+            continue
+        try:
+            fpct = float(pct)
+            if fpct < 50.0 or fpct <= 0.5 or fpct == 0 or fpct == 0.0:
+                continue
+        except Exception:
+            continue
+        if item.label in ("No match on assessed criteria", "No match", "No direct match"):
+            continue
+        filtered.append(item)
+    matches = filtered[: profile.top_k]
 
     warning = None
     if matches and all(item.startup.dataStatus == "demo" for item in matches):

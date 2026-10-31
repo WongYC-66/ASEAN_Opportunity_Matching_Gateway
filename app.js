@@ -565,15 +565,11 @@ function deadlineHtml(record) {
 }
 
 function eligibilityHtml(record) {
-  if (record.eligibility === null) {
-    return `
-      <div class="info-block">
-        <h4>Eligibility</h4>
-        <p>Unknown — not recorded. Check the programme's own rules before applying.</p>
-      </div>`;
+  if (record.eligibility === null || record.eligibility === undefined) {
+    return "";
   }
 
-  if (record.eligibility.length === 0) {
+  if (Array.isArray(record.eligibility) && record.eligibility.length === 0) {
     return `
       <div class="info-block">
         <h4>Eligibility</h4>
@@ -581,11 +577,15 @@ function eligibilityHtml(record) {
       </div>`;
   }
 
-  return `
-    <div class="info-block">
-      <h4>Eligibility</h4>
-      <ul>${record.eligibility.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-    </div>`;
+  if (Array.isArray(record.eligibility)) {
+    return `
+      <div class="info-block">
+        <h4>Eligibility</h4>
+        <ul>${record.eligibility.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      </div>`;
+  }
+
+  return "";
 }
 
 function sourceHtml(record, label) {
@@ -622,9 +622,6 @@ function checklistItems(record) {
   }
   if (record.sourceUrl === null) {
     items.push("No official source is recorded, so the details cannot be confirmed.");
-  }
-  if (record.eligibility === null) {
-    items.push("Eligibility is not recorded — check the programme's own eligibility rules.");
   }
   if (record.applicationDeadline === null) {
     items.push("The application deadline is not recorded — check the official page.");
@@ -1197,6 +1194,17 @@ async function runMatch(which, profile) {
     if (!data || !Array.isArray(data.matches)) {
       throw new Error("the backend response did not include a matches list");
     }
+
+    // Filter out matches below 50% or with no score
+    const filteredMatches = data.matches.filter((match) => {
+      const score = match.percent !== undefined ? match.percent : match.score;
+      if (score === undefined || score === null || isNaN(score)) return false;
+      const fs = Number(score);
+      if (fs < 50 || fs <= 0.5 || fs === 0) return false;
+      if (match.label === "No match on assessed criteria" || match.label === "No match" || match.label === "No direct match") return false;
+      return true;
+    });
+    data.matches = filteredMatches;
 
     const map = new Map();
     data.matches.forEach((match) => {
