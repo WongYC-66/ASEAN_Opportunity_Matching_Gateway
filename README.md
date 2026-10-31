@@ -82,3 +82,44 @@ The platform also highlights missing information and distinguishes demo records 
 We envision ASEAN Opportunity Gateway as a unified entry point where startup founders can discover the resources they need and investors can discover businesses that align with their investment interests — helping create a more connected and accessible ASEAN startup ecosystem.
 
 > **Note:** The current prototype uses synthetic demonstration records to demonstrate the matching mechanism. These records do not represent actual funding programmes, verified startups or live investment opportunities.
+
+## Live Demo: Local Deployment
+
+A publicly hosted deployment is not currently available. Judges can run and evaluate the project locally using the following instructions.
+
+**GitHub Repository:**
+https://github.com/WongYC-66/hack-teh-tarik
+
+### Prerequisites
+
+- Python 3.x
+- A modern web browser
+- Git
+
+### Steps to Run
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/WongYC-66/hack-teh-tarik.git
+   cd hack-teh-tarik
+   ```
+
+2. Start the Python backend using the backend startup command documented in README.md.
+
+3. Open a second terminal in the project directory and start the frontend:
+
+   ```bash
+   python -m http.server 5500
+   ```
+
+4. Open the application in your browser:
+
+   http://localhost:5500
+
+5. Evaluate both user experiences:
+   - Select Startup Owner to explore startup opportunity matching.
+   - Select Investor to explore startup discovery and investor-to-startup matching.
+   - Change the profile criteria to observe how the matching results and rankings change.
+
+> **Note:** The application uses a synthetic demonstration dataset. Demo records are clearly labelled and should not be interpreted as real funding programmes, verified startups, or currently available investment opportunities.
