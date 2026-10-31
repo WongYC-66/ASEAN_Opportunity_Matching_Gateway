@@ -15,11 +15,12 @@
 
   <header class="site-header">
     <div class="wrap">
-      <p class="eyebrow">Ecosystem Gateway · Prototype</p>
+      <p class="eyebrow">ASEAN Opportunity Finder · Integrated Prototype</p>
       <h1>ASEAN Opportunity Finder</h1>
       <p class="lede">
-        Tell us about your startup and we will show demo opportunities that might fit,
-        with a plain-language reason for each match and what you should verify first.
+        Tell us about your startup and we will rank demo opportunities from the local
+        backend, with a plain-language reason for each match and what you should verify
+        before applying.
       </p>
 
       <ol class="steps" aria-label="How this prototype works">
@@ -31,14 +32,14 @@
       <p class="chip-row">
         <span class="chip">No sign-up</span>
         <span class="chip">Rule-based, not AI</span>
-        <span class="chip">Works offline</span>
+        <span class="chip">Local backend</span>
       </p>
 
       <!-- Demo-data warning. Keep this visible; it is the honest core of the prototype. -->
       <p class="demo-flag" role="note">
-        <strong>Demo data only.</strong> Every opportunity in this prototype is a fictional
-        example written for the hackathon. Nothing here is a real funding programme, and
-        nothing is confirmed to be open, available, or accepting applications.
+        <strong>Demo data only.</strong> All opportunity records served by the backend are
+        fictional examples written for the hackathon. Nothing here is a real funding
+        programme, and nothing is confirmed to be open, available, or accepting applications.
       </p>
     </div>
   </header>
@@ -114,6 +115,11 @@
           <button type="reset" class="btn btn-ghost">Reset</button>
         </div>
       </form>
+
+      <p class="hint privacy-note">
+        Your profile is sent to the local backend only to calculate match scores. It is not
+        saved, and there is no account.
+      </p>
     </section>
 
     <!-- ================= RIGHT: RESULTS ================= -->
@@ -122,13 +128,14 @@
         <h2 id="results-heading">2. Opportunities</h2>
         <p class="hint">Filter the records below. Results are examples, not recommendations.</p>
         <p id="data-counts" class="data-counts"></p>
+        <p id="source-status" class="source-status" role="status">Connecting to the local backend…</p>
       </div>
 
       <div class="verify-explainer" role="note">
         <p>
-          <strong>How matching works:</strong> a fixed set of rules scores country, industry,
-          stage, and goals. It is <strong>not AI</strong> and it does not decide whether you
-          are eligible - always check the official programme rules.
+          <strong>How matching works:</strong> the local Python backend applies a fixed set of
+          rules to country, industry, stage, and goals. It is <strong>not AI</strong> and it
+          does not decide whether you are eligible - always check the official programme rules.
         </p>
         <p>
           <strong>Verified</strong> means the recorded details were checked against the
@@ -192,8 +199,9 @@
     <div class="wrap">
       <p>
         <strong>Prototype disclaimer.</strong> Built for a hackathon demo. All opportunities
-        are fictional sample data. Always verify eligibility, deadlines, fees, and data
-        handling with an official source before applying to anything.
+        are fictional sample data served by the local backend. Always verify eligibility,
+        deadlines, fees, and data handling with an official source before applying to
+        anything.
       </p>
       <p class="footer-meta">
         ASEAN Opportunity Finder · Hacktoberfest KL 2026 · MIT licensed (see LICENSE)
@@ -201,8 +209,8 @@
     </div>
   </footer>
 
-  <!-- Plain scripts (no modules) so the page also works when opened directly from disk. -->
-  <script src="data.js"></script>
+  <!-- data.js (the original offline snapshot) is kept for reference but is no longer
+       loaded: the backend JSON file is the single source of opportunity records. -->
   <script src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,318 @@
+[
+  {
+    "id": "p1",
+    "title": "TarikServe",
+    "description": "AI ordering and queue system for busy mamak stalls, predicting peak crowds and routing orders to the kitchen.",
+    "team_name": "Team Teh Tarik",
+    "created_at": "2026-10-30T09:00:00Z",
+    "metrics": {
+      "tech_stack": [
+        "python",
+        "fastapi",
+        "react",
+        "postgresql",
+        "llm"
+      ],
+      "domains": [
+        "foodtech",
+        "sme",
+        "ai"
+      ],
+      "team_size": 4,
+      "experience_level": "intermediate",
+      "team_skills": [
+        "backend",
+        "frontend",
+        "product design",
+        "ml"
+      ],
+      "duration_hours": 30,
+      "open_source": true,
+      "budget_usd": 120,
+      "deliverables": [
+        "working prototype",
+        "pitch deck"
+      ],
+      "goals": [
+        "win a sponsor prize",
+        "help local businesses",
+        "learn llm tooling"
+      ],
+      "constraints": [
+        "must run on a laptop",
+        "no paid hardware"
+      ],
+      "completion_percent": 70,
+      "has_demo": true
+    }
+  },
+  {
+    "id": "p2",
+    "title": "GreenGrid",
+    "description": "Solar micro-grid optimiser that balances rooftop generation across a neighbourhood using IoT sensors.",
+    "team_name": "Solar Flare",
+    "created_at": "2026-10-30T10:15:00Z",
+    "metrics": {
+      "tech_stack": [
+        "python",
+        "iot",
+        "mqtt",
+        "react",
+        "tensorflow",
+        "azure"
+      ],
+      "domains": [
+        "energy",
+        "sustainability",
+        "smart cities"
+      ],
+      "team_size": 3,
+      "experience_level": "advanced",
+      "team_skills": [
+        "hardware",
+        "data science",
+        "backend"
+      ],
+      "duration_hours": 42,
+      "open_source": true,
+      "budget_usd": 350,
+      "deliverables": [
+        "working prototype",
+        "sensor demo"
+      ],
+      "goals": [
+        "reduce carbon emissions",
+        "win a sponsor prize",
+        "productionise"
+      ],
+      "constraints": [
+        "needs a stable power supply"
+      ],
+      "completion_percent": 55,
+      "has_demo": true
+    }
+  },
+  {
+    "id": "p3",
+    "title": "DompetKita",
+    "description": "Islamic micro-savings wallet for gig workers with automated round-ups and halal investment goals.",
+    "team_name": "Dompet Duo",
+    "created_at": "2026-10-30T11:30:00Z",
+    "metrics": {
+      "tech_stack": [
+        "flutter",
+        "python",
+        "fastapi",
+        "firebase",
+        "ocr"
+      ],
+      "domains": [
+        "fintech",
+        "inclusion",
+        "sme"
+      ],
+      "team_size": 5,
+      "experience_level": "intermediate",
+      "team_skills": [
+        "mobile",
+        "backend",
+        "compliance",
+        "design"
+      ],
+      "duration_hours": 40,
+      "open_source": false,
+      "budget_usd": 200,
+      "deliverables": [
+        "mvp",
+        "security write-up"
+      ],
+      "goals": [
+        "financial inclusion",
+        "validate with gig workers",
+        "win a sponsor prize"
+      ],
+      "constraints": [
+        "regulatory uncertainty",
+        "no banking licence"
+      ],
+      "completion_percent": 65,
+      "has_demo": true
+    }
+  },
+  {
+    "id": "p4",
+    "title": "RouteRasa",
+    "description": "Delivery route optimiser for hawker centres that batches orders by cooking time and walking distance.",
+    "team_name": "Hawker Hackers",
+    "created_at": "2026-10-30T13:00:00Z",
+    "metrics": {
+      "tech_stack": [
+        "golang",
+        "react",
+        "google maps",
+        "postgresql"
+      ],
+      "domains": [
+        "logistics",
+        "foodtech",
+        "mobility"
+      ],
+      "team_size": 2,
+      "experience_level": "beginner",
+      "team_skills": [
+        "backend",
+        "frontend"
+      ],
+      "duration_hours": 24,
+      "open_source": true,
+      "budget_usd": 80,
+      "deliverables": [
+        "prototype"
+      ],
+      "goals": [
+        "learn quickly",
+        "help hawkers",
+        "win a sponsor prize"
+      ],
+      "constraints": [
+        "first hackathon",
+        "limited maps quota"
+      ],
+      "completion_percent": 35,
+      "has_demo": false
+    }
+  },
+  {
+    "id": "p5",
+    "title": "SuaraKita",
+    "description": "Multilingual voice assistant that helps elderly Malaysians book clinic appointments and manage medication reminders.",
+    "team_name": "Suara Care",
+    "created_at": "2026-10-30T14:45:00Z",
+    "metrics": {
+      "tech_stack": [
+        "python",
+        "whisper",
+        "llm",
+        "react native",
+        "azure"
+      ],
+      "domains": [
+        "healthtech",
+        "inclusion",
+        "ai"
+      ],
+      "team_size": 4,
+      "experience_level": "intermediate",
+      "team_skills": [
+        "ml",
+        "mobile",
+        "ux research",
+        "backend"
+      ],
+      "duration_hours": 44,
+      "open_source": true,
+      "budget_usd": 250,
+      "deliverables": [
+        "working prototype",
+        "usability study"
+      ],
+      "goals": [
+        "social impact",
+        "win a sponsor prize",
+        "multilingual access"
+      ],
+      "constraints": [
+        "needs low-bandwidth mode",
+        "privacy sensitive data"
+      ],
+      "completion_percent": 45,
+      "has_demo": false
+    }
+  },
+  {
+    "id": "p6",
+    "title": "ChainSawit",
+    "description": "Blockchain traceability for palm oil smallholders, proving sustainable sourcing from farm to buyer.",
+    "team_name": "Sawit Chain",
+    "created_at": "2026-10-30T16:20:00Z",
+    "metrics": {
+      "tech_stack": [
+        "solidity",
+        "node.js",
+        "react",
+        "ipfs",
+        "python"
+      ],
+      "domains": [
+        "sustainability",
+        "supply chain",
+        "blockchain"
+      ],
+      "team_size": 3,
+      "experience_level": "advanced",
+      "team_skills": [
+        "blockchain",
+        "backend",
+        "field research"
+      ],
+      "duration_hours": 40,
+      "open_source": true,
+      "budget_usd": 600,
+      "deliverables": [
+        "mvp",
+        "supply chain simulation"
+      ],
+      "goals": [
+        "sustainability impact",
+        "win a sponsor prize",
+        "pilot with a cooperative"
+      ],
+      "constraints": [
+        "no real farmer data",
+        "testnet only"
+      ],
+      "completion_percent": 40,
+      "has_demo": true
+    }
+  },
+  {
+    "title": "FloodSense",
+    "description": "IoT flood sensors with MQTT and a live map for kampung residents.",
+    "team_name": "Sensor Squad",
+    "metrics": {
+      "tech_stack": [
+        "python",
+        "mqtt",
+        "react",
+        "aws iot",
+        "c++"
+      ],
+      "domains": [
+        "smart cities",
+        "sustainability",
+        "iot"
+      ],
+      "team_size": 3,
+      "experience_level": "advanced",
+      "team_skills": [],
+      "duration_hours": 36,
+      "open_source": true,
+      "budget_usd": 300.0,
+      "deliverables": [
+        "prototype",
+        "sensor demo"
+      ],
+      "goals": [
+        "win a sponsor prize",
+        "help communities"
+      ],
+      "constraints": [
+        "testnet sensors only"
+      ],
+      "completion_percent": 60,
+      "has_demo": true
+    },
+    "id": "prj_084667aa",
+    "created_at": "2026-10-31T04:18:15.034649Z"
+  }
+]

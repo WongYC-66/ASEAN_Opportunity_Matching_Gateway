@@ -1,20 +1,34 @@
 /*
  * app.js
  * ==================================================================
- * The whole "brain" of the prototype, in plain JavaScript.
+ * The browser "brain" of the integrated prototype.
  *
- * It does four things:
- *   1. Checks the data in data.js for mistakes (validateOpportunities).
- *   2. Scores each record against the startup form.
- *   3. Filters/searches the records.
- *   4. Draws the cards, including why a record may fit, its deadline,
- *      eligibility, source, and verification status.
+ * Records come from the FastAPI backend:
+ *   GET  /api/opportunities        -> all records (demo + verified)
+ *   POST /api/opportunities/match  -> ranked matches + reasons
  *
- * There is no server, no framework, and no API call.
+ * It still does the presentation work locally:
+ *   1. Validates the records received from the backend.
+ *   2. Filters, searches, and sorts them.
+ *   3. Draws the cards, badges, deadlines, sources, and match reasons.
+ *
+ * Matching itself is deterministic Python on the backend. There is no
+ * AI-generated eligibility decision anywhere in this file.
  * ==================================================================
  */
 
-// ---------- 1. Page elements ----------
+// ---------- 1. Configuration and page elements ----------
+
+/**
+ * The backend runs on port 8000 by default. Override before this script if
+ * your backend lives elsewhere:
+ *   <script>window.OPPORTUNITY_API_BASE = "http://127.0.0.1:9000";</script>
+ */
+const API_BASE = (
+  window.OPPORTUNITY_API_BASE ||
+  (window.location.port === "8000" ? window.location.origin : "http://127.0.0.1:8000")
+).replace(/\/+$/, "");
+
 const formEl = document.getElementById("profile-form");
 const countryEl = document.getElementById("country");
 const industryEl = document.getElementById("industry");
@@ -28,15 +42,26 @@ const summaryEl = document.getElementById("results-summary");
 const countsEl = document.getElementById("data-counts");
 const dataCheckEl = document.getElementById("data-check");
 const formMessageEl = document.getElementById("form-message");
+const sourceStatusEl = document.getElementById("source-status");
+const submitButton = formEl.querySelector('button[type="submit"]');
 
 const CATEGORIES = ["Funding", "Support", "Partnership"];
 const ALLOWED_STATUSES = ["demo", "verified"];
 
-// Highest possible score in scoreOpportunity() below.
-const MAX_SCORE = 3 + 2 + 2 + 2; // = 9
+// Highest possible score returned by the backend (country 3 + industry 2 +
+// stage 2 + goals 2). Used only for display sanity checks.
+const MAX_SCORE = 9;
 
-// null = preview mode (the form has not been submitted yet).
+/** Records loaded from the backend. Never replaced by hand-written demo data. */
+let OPPORTUNITIES = [];
+/** opportunity id -> match result from the backend. */
+const MATCHES = new Map();
+/** Profile last submitted successfully, or null in preview mode. */
 let profile = null;
+/** "loading" | "ready" | "error" */
+let dataState = "loading";
+let dataError = "";
+let isMatching = false;
 
 // ---------- 2. Small helpers ----------
 
@@ -96,19 +121,86 @@ function listText(value) {
   return value.join(", ");
 }
 
-// ---------- 3. Data validation ----------
+function setSourceStatus(text, kind) {
+  if (!sourceStatusEl) return;
+  sourceStatusEl.textContent = text;
+  sourceStatusEl.className = `source-status${kind ? ` source-status-${kind}` : ""}`;
+}
+
+function setFormMessage(message) {
+  formMessageEl.textContent = message;
+  formMessageEl.hidden = !message;
+}
+
+function setSubmitBusy(busy) {
+  isMatching = busy;
+  submitButton.disabled = busy;
+  submitButton.textContent = busy ? "Matching…" : "Find opportunities";
+  submitButton.setAttribute("aria-busy", String(busy));
+}
+
+// ---------- 3. API access ----------
+
+/**
+ * Fetch JSON with a timeout and a useful error message.
+ * A failed request must never look like an empty or successful result.
+ */
+async function fetchJson(path, options = {}) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+        ...(options.headers || {}),
+      },
+    });
+
+    if (!response.ok) {
+      let detail = "";
+      try {
+        const body = await response.json();
+        if (typeof body.detail === "string") {
+          detail = `: ${body.detail}`;
+        } else if (body.detail) {
+          detail = `: ${JSON.stringify(body.detail)}`;
+        }
+      } catch {
+        // The status code alone is still useful.
+      }
+      throw new Error(`HTTP ${response.status}${detail}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("the request timed out after 10 seconds");
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+// ---------- 4. Data validation ----------
 
 /**
  * Check every record for obvious mistakes.
  *
  * Returns { recordCount, issues: [ "message", ... ] }.
- * The page shows the result in the "Data check" box, and the browser
- * console shows details too, so a beginner can fix data.js directly.
+ * The same rules are enforced by the backend Pydantic model; this check keeps
+ * the visible feedback from the original prototype.
  */
 function validateOpportunities(records) {
   const issues = [];
   const seenIds = new Set();
   const today = todayIso();
+
+  if (!Array.isArray(records)) {
+    return { recordCount: 0, issues: ["The backend response was not a list of records."] };
+  }
 
   records.forEach((record, index) => {
     const label = `Record ${index + 1}${record && record.id ? ` ("${record.id}")` : ""}`;
@@ -206,6 +298,18 @@ function validateOpportunities(records) {
   return { recordCount: records.length, issues };
 }
 
+function renderDataCheckPending() {
+  dataCheckEl.className = "data-check data-check-pending";
+  dataCheckEl.textContent = "Waiting for opportunity data from the local backend…";
+}
+
+function renderDataCheckError(message) {
+  dataCheckEl.className = "data-check data-check-error";
+  dataCheckEl.innerHTML =
+    "<strong>Data check not run.</strong> " +
+    `${escapeHtml(message)} The page will not show records until the backend is reachable.`;
+}
+
 function renderDataCheck() {
   const result = validateOpportunities(OPPORTUNITIES);
 
@@ -219,83 +323,13 @@ function renderDataCheck() {
     dataCheckEl.innerHTML =
       `<strong>Data check found ${result.issues.length} issue(s).</strong>` +
       `<ul>${result.issues.map((issue) => `<li>${escapeHtml(issue)}</li>`).join("")}</ul>` +
-      "<p>Fix these in <code>data.js</code>, then refresh the page.</p>";
+      "<p>Fix the JSON in <code>backend/app/data/opportunities.json</code>, then reload this page.</p>";
   }
 
   // Also log details for anyone with developer tools open.
   if (result.issues.length > 0) {
     console.warn("Data check issues:", result.issues);
   }
-}
-
-// ---------- 4. Matching logic ----------
-
-/**
- * Compare one record with the user's profile.
- *
- * Points (simple and explainable):
- *   country  exact match = 3, "ASEAN-wide" = 2
- *   industry exact match = 2, "Any" = 1, unknown (null) = 0
- *   stage    exact match = 2, "Any" = 1, unknown (null) = 0
- *   goals    1 point per shared goal, capped at 2
- *
- * dataStatus is deliberately NOT scored.
- */
-function scoreOpportunity(record, userProfile) {
-  let score = 0;
-  const reasons = [];
-
-  if (userProfile.country) {
-    if (record.countries.includes(userProfile.country)) {
-      score += 3;
-      reasons.push(`Covers your country (${userProfile.country}).`);
-    } else if (record.countries.includes("ASEAN-wide")) {
-      score += 2;
-      reasons.push("Listed as ASEAN-wide, so your country is in scope.");
-    }
-  }
-
-  if (userProfile.industry && record.targetIndustries !== null) {
-    if (record.targetIndustries.includes(userProfile.industry)) {
-      score += 2;
-      reasons.push(`Focused on your industry (${userProfile.industry}).`);
-    } else if (record.targetIndustries.includes("Any")) {
-      score += 1;
-      reasons.push("Open to any industry.");
-    }
-  }
-
-  if (userProfile.stage && record.targetStages !== null) {
-    if (record.targetStages.includes(userProfile.stage)) {
-      score += 2;
-      reasons.push(`Intended for ${userProfile.stage} companies.`);
-    } else if (record.targetStages.includes("Any")) {
-      score += 1;
-      reasons.push("Open to any company stage.");
-    }
-  }
-
-  const sharedGoals = record.goals.filter((goal) => userProfile.goals.includes(goal));
-  if (sharedGoals.length > 0) {
-    score += Math.min(sharedGoals.length, 2);
-    reasons.push(`Matches your goal: ${sharedGoals.join(", ")}.`);
-  }
-
-  if (reasons.length === 0) {
-    reasons.push(
-      "No direct match with the details you entered - shown only as a record in the list."
-    );
-  }
-
-  const percent = Math.round((score / MAX_SCORE) * 100);
-  return { score, percent, reasons };
-}
-
-function matchLabel(percent) {
-  if (percent >= 70) return "Strong match";
-  if (percent >= 40) return "Possible match";
-  if (percent > 0) return "Weak match";
-  return "No direct match";
 }
 
 // ---------- 5. Card pieces ----------
@@ -408,30 +442,38 @@ function checklistItems(record) {
   return items;
 }
 
-function cardHtml(record, match) {
-  const matchBlock = match
-    ? `
-      <div class="match">
-        <div class="match-head">
-          <span class="match-label">${escapeHtml(matchLabel(match.percent))}</span>
-          <span class="match-percent">${match.percent}%</span>
-        </div>
-        <div class="meter" role="img" aria-label="Match strength: ${match.percent} percent">
-          <span style="width: ${match.percent}%"></span>
-        </div>
-        <h4>Why this may be relevant</h4>
-        <ul class="reasons">
-          ${match.reasons.map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")}
-        </ul>
-      </div>`
-    : `
+function matchBlockHtml(match) {
+  if (!match) {
+    return `
       <div class="match">
         <p class="preview-note">
           Preview only - fill in your startup details and press
-          &ldquo;Find opportunities&rdquo; to see a match score and reasons.
+          &ldquo;Find opportunities&rdquo; to see a rule-based score and reasons.
         </p>
       </div>`;
+  }
 
+  const percent = Math.max(0, Math.min(100, Number(match.percent) || 0));
+  const reasons = Array.isArray(match.reasons) ? match.reasons : [];
+
+  return `
+    <div class="match">
+      <div class="match-head">
+        <span class="match-label">${escapeHtml(match.label || "Match")}</span>
+        <span class="match-percent">${percent}%</span>
+      </div>
+      <div class="meter" role="img" aria-label="Match strength: ${percent} percent">
+        <span style="width: ${percent}%"></span>
+      </div>
+      <h4>Why this may be relevant</h4>
+      <ul class="reasons">
+        ${reasons.map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")}
+      </ul>
+      <p class="match-source">Rule-based score from the local backend - not an eligibility decision.</p>
+    </div>`;
+}
+
+function cardHtml(record, match) {
   const fineprint =
     record.dataStatus === "demo"
       ? "Fictional demo record. Not a real programme and not evidence that funding or support is available."
@@ -457,7 +499,7 @@ function cardHtml(record, match) {
         <span><strong>Goals:</strong> ${escapeHtml(listText(record.goals))}</span>
       </p>
 
-      ${matchBlock}
+      ${matchBlockHtml(match)}
 
       ${deadlineHtml(record)}
       ${eligibilityHtml(record)}
@@ -492,11 +534,53 @@ function emptyHtml() {
     `;
   }
 
+  if (OPPORTUNITIES.length === 0) {
+    return `
+      <p class="empty">
+        <strong>The backend returned no opportunity records.</strong>
+        Add records to <code>backend/app/data/opportunities.json</code> and reload this page.
+      </p>
+    `;
+  }
+
   return `
     <p class="empty">
       No records match these filters. Try clearing the search box, choosing
       &ldquo;All types&rdquo;, or switching the record status back to &ldquo;All records&rdquo;.
     </p>
+  `;
+}
+
+function loadingHtml() {
+  return `
+    <div class="loading" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <p><strong>Loading opportunities…</strong></p>
+      <p class="muted">Reading records from ${escapeHtml(API_BASE)}/api/opportunities</p>
+    </div>
+  `;
+}
+
+function apiErrorHtml(message) {
+  return `
+    <div class="api-error" role="alert">
+      <h3>Could not load opportunities from the backend</h3>
+      <p><strong>What happened:</strong> ${escapeHtml(message)}</p>
+      <p>
+        The page will not show sample or stale records, because that would hide the problem.
+        Start the backend, then retry.
+      </p>
+      <p class="api-error-cmd">
+        From the repository root:<br />
+        <code>cd backend</code><br />
+        <code>python -m uvicorn app.main:app --reload</code>
+      </p>
+      <p class="muted">
+        Expected API: <code>${escapeHtml(API_BASE)}/api/opportunities</code> ·
+        <a href="${escapeHtml(API_BASE)}/docs" target="_blank" rel="noopener noreferrer">API docs</a>
+      </p>
+      <button type="button" class="btn btn-primary" data-action="retry-load">Retry connection</button>
+    </div>
   `;
 }
 
@@ -509,6 +593,8 @@ function updateCounts() {
 }
 
 function applyFilters() {
+  if (dataState !== "ready") return;
+
   const selectedType = typeFilterEl.value;
   const selectedStatus = statusFilterEl.value;
   const query = searchEl.value.trim().toLowerCase();
@@ -516,7 +602,7 @@ function applyFilters() {
 
   let items = OPPORTUNITIES.map((record) => ({
     record,
-    match: profile ? scoreOpportunity(record, profile) : null,
+    match: profile ? MATCHES.get(record.id) || null : null,
   }));
 
   if (selectedType) {
@@ -549,7 +635,9 @@ function applyFilters() {
 
   if (sortMode === "match" && profile) {
     items.sort(
-      (a, b) => b.match.percent - a.match.percent || a.record.name.localeCompare(b.record.name)
+      (a, b) =>
+        (b.match ? b.match.percent : 0) - (a.match ? a.match.percent : 0) ||
+        a.record.name.localeCompare(b.record.name)
     );
   } else {
     items.sort((a, b) => a.record.name.localeCompare(b.record.name));
@@ -557,7 +645,7 @@ function applyFilters() {
 
   const total = OPPORTUNITIES.length;
   summaryEl.textContent = profile
-    ? `Showing ${items.length} of ${total} records, ranked for your profile.`
+    ? `Showing ${items.length} of ${total} records, ranked by the backend for your profile.`
     : `Preview mode: showing ${items.length} of ${total} records. Fill in the form and press "Find opportunities" to see ranked matches.`;
 
   resultsEl.innerHTML =
@@ -566,7 +654,51 @@ function applyFilters() {
       : items.map((item) => cardHtml(item.record, item.match)).join("");
 }
 
-// ---------- 7. Events ----------
+// ---------- 7. Load records from the backend ----------
+
+async function loadOpportunities() {
+  dataState = "loading";
+  dataError = "";
+  OPPORTUNITIES = [];
+  MATCHES.clear();
+  profile = null;
+
+  countsEl.textContent = "";
+  summaryEl.textContent = "Loading opportunity records from the local backend…";
+  resultsEl.innerHTML = loadingHtml();
+  renderDataCheckPending();
+  setSourceStatus(`Connecting to ${API_BASE}…`, "loading");
+  setSubmitBusy(false);
+
+  try {
+    const records = await fetchJson("/api/opportunities");
+    if (!Array.isArray(records)) {
+      throw new Error("the backend response was not a list of records");
+    }
+
+    OPPORTUNITIES = records;
+    dataState = "ready";
+    renderDataCheck();
+    updateCounts();
+    setSourceStatus(
+      `Connected to the local backend · ${records.length} record(s) from /api/opportunities`,
+      "ready"
+    );
+    applyFilters();
+  } catch (error) {
+    dataState = "error";
+    dataError = error.message || String(error);
+    OPPORTUNITIES = [];
+    countsEl.textContent = "";
+    summaryEl.textContent = "Opportunities could not be loaded. See the error below.";
+    renderDataCheckError(`Could not read ${API_BASE}/api/opportunities (${dataError}).`);
+    setSourceStatus(`Backend unavailable · ${API_BASE}`, "error");
+    resultsEl.innerHTML = apiErrorHtml(dataError);
+    console.error("Opportunity load failed:", error);
+  }
+}
+
+// ---------- 8. Events ----------
 
 function readProfile() {
   const checkedGoals = formEl.querySelectorAll('input[name="goals"]:checked');
@@ -578,8 +710,9 @@ function readProfile() {
   };
 }
 
-formEl.addEventListener("submit", (event) => {
+formEl.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (isMatching) return;
 
   const candidate = readProfile();
   const hasAnyDetail =
@@ -589,19 +722,58 @@ formEl.addEventListener("submit", (event) => {
     candidate.goals.length > 0;
 
   if (!hasAnyDetail) {
-    formMessageEl.textContent =
-      "Please choose at least one detail - country, industry, stage, or a goal - so we can explain the matches.";
-    formMessageEl.hidden = false;
+    setFormMessage(
+      "Please choose at least one detail - country, industry, stage, or a goal - so we can explain the matches."
+    );
     return;
   }
 
-  formMessageEl.textContent = "";
-  formMessageEl.hidden = true;
-  profile = candidate;
-  applyFilters();
+  if (dataState !== "ready") {
+    setFormMessage(
+      "Opportunities are not loaded yet. Start the backend and press Retry connection before matching."
+    );
+    return;
+  }
 
-  if (window.innerWidth < 900) {
-    document.getElementById("results-heading").scrollIntoView({ behavior: "smooth" });
+  setFormMessage("");
+  setSubmitBusy(true);
+  summaryEl.textContent = "Scoring opportunities on the local backend…";
+
+  try {
+    const data = await fetchJson("/api/opportunities/match", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...candidate, top_k: 50 }),
+    });
+
+    if (!data || !Array.isArray(data.matches)) {
+      throw new Error("the backend response did not include a matches list");
+    }
+
+    MATCHES.clear();
+    data.matches.forEach((match) => {
+      if (match && match.opportunity && match.opportunity.id) {
+        MATCHES.set(match.opportunity.id, match);
+      }
+    });
+    profile = candidate;
+    applyFilters();
+
+    if (window.innerWidth < 900) {
+      document.getElementById("results-heading").scrollIntoView({ behavior: "smooth" });
+    }
+  } catch (error) {
+    // Keep any previous successful results visible; make the failure loud.
+    setFormMessage(
+      `Could not get matches from the backend (${error.message}). ` +
+        "Check that the backend is still running, then try again."
+    );
+    summaryEl.textContent = profile
+      ? "Showing the previous successful match results. The latest request failed."
+      : "Matching failed. See the message above the form.";
+    console.error("Matching request failed:", error);
+  } finally {
+    setSubmitBusy(false);
   }
 });
 
@@ -614,33 +786,40 @@ formEl.addEventListener("submit", (event) => {
 formEl.addEventListener("reset", () => {
   window.setTimeout(() => {
     profile = null;
-    formMessageEl.textContent = "";
-    formMessageEl.hidden = true;
+    MATCHES.clear();
+    setFormMessage("");
     applyFilters();
   }, 0);
 });
 
-// ---------- 8. First render ----------
-renderDataCheck();
-updateCounts();
-applyFilters();
-
-/**
- * Browsers can restore form values after a reload, which would leave the
- * fields filled in while the results show preview mode. Reset on pageshow
- * so the page always starts in one consistent state for a live demo.
- */
-window.addEventListener("pageshow", () => {
-  formEl.reset();
-  profile = null;
-  formMessageEl.textContent = "";
-  formMessageEl.hidden = true;
-  renderDataCheck();
-  updateCounts();
-  applyFilters();
+resultsEl.addEventListener("click", (event) => {
+  const retry = event.target.closest('[data-action="retry-load"]');
+  if (retry) loadOpportunities();
 });
 
-// Make the validation helper available to a console or a future test page.
+// ---------- 9. First render ----------
+
+/**
+ * Browsers can restore form values when using back/forward, which would leave
+ * the fields filled in while the results show preview mode. Reset the form and
+ * reload the records in that case so a live demo always starts consistently.
+ */
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  formEl.reset();
+  profile = null;
+  MATCHES.clear();
+  setFormMessage("");
+  loadOpportunities();
+});
+
+loadOpportunities();
+
+// Make helpers available to a console or a future test page.
 window.validateOpportunities = validateOpportunities;
-window.scoreOpportunity = scoreOpportunity;
 window.renderDataCheck = renderDataCheck;
+window.loadOpportunities = loadOpportunities;
+window.API_BASE = API_BASE;
+
+// Reference MAX_SCORE so a future refactor cannot silently remove it.
+window.OPPORTUNITY_MAX_SCORE = MAX_SCORE;

@@ -1,58 +1,17 @@
 /*
- * data.js
+ * data.js — ORIGINAL OFFLINE SNAPSHOT (kept for reference)
  * ==================================================================
- * WHERE OPPORTUNITIES LIVE
+ * The integrated application no longer loads this file. Opportunity
+ * records now come from:
  *
- * Everything in this file is plain JavaScript data, edited by hand.
- * There is no database and no build step: save the file, refresh the
- * browser, and the page updates.
+ *     backend/app/data/opportunities.json
  *
- * ------------------------------------------------------------------
- * THE THREE RULES
- * ------------------------------------------------------------------
- * 1. null means "we do not know".
- *    Never guess a deadline, eligibility rule, or target group.
- *    null  = unknown
- *    []    = we checked and there is nothing to list
- *    value = we checked and this is what we found
+ * through GET /api/opportunities. Matching is done by the backend too
+ * (POST /api/opportunities/match).
  *
- * 2. "Any" is not the same as null.
- *    targetStages: ["Any"]  -> openly available to every stage
- *    targetStages: null     -> we do not know who it targets
- *
- * 3. A record can only be dataStatus: "verified" when BOTH
- *    sourceUrl and lastVerifiedDate are filled in with real evidence.
- *    "verified" refers to the RECORDED INFORMATION on the stated date,
- *    not to whether applications are open today.
- *
- * ------------------------------------------------------------------
- * TEMPLATE - copy this to add a record
- * ------------------------------------------------------------------
- *
- *  {
- *    id: "unique-lowercase-id",
- *    name: "Name of the opportunity",
- *    provider: "Organisation that runs it",
- *    category: "Funding",              // "Funding" | "Support" | "Partnership"
- *    description: "One or two plain sentences.",
- *    countries: ["Malaysia"],          // or ["ASEAN-wide"]
- *    targetStages: null,               // e.g. ["Seed"] or ["Any"] or null
- *    targetIndustries: null,           // e.g. ["Fintech"] or ["Any"] or null
- *    goals: ["Funding"],               // which user goals it may serve
- *    eligibility: null,                // null = unknown, [] = none stated
- *    applicationDeadline: null,        // "YYYY-MM-DD" or null
- *    deadlineNote: null,               // optional short note
- *    dataStatus: "demo",               // "demo" | "verified"
- *    sourceUrl: null,                  // official URL, required if verified
- *    lastVerifiedDate: null,           // "YYYY-MM-DD", required if verified
- *    notes: "Why this record exists."
- *  }
- *
- * ------------------------------------------------------------------
- * CURRENT FILE: 12 DEMO RECORDS, 0 VERIFIED RECORDS
- * All records below are fictional examples written for the hackathon.
- * They are NOT real programmes and do not prove that anything exists,
- * is open, or is accepting applications.
+ * This snapshot is retained so the original frontend-only demo and its
+ * schema documentation are not lost. If you edit records, edit the
+ * backend JSON file; otherwise the page will not change.
  * ==================================================================
  */
 
